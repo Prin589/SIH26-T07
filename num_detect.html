@@ -1,0 +1,561 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeCheck - Data & Phone Safety Checker</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #07111f, #0f2740);
+      color: white;
+      padding: 30px 15px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 42px;
+      color: #36e2a4;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #b7c5d6;
+      font-size: 16px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 25px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    }
+
+    h2 {
+      margin-bottom: 15px;
+      color: #36e2a4;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #dce7f2;
+    }
+
+    input[type="tel"] {
+      width: 100%;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #38536e;
+      background: #091827;
+      color: white;
+      font-size: 17px;
+      outline: none;
+    }
+
+    input[type="tel"]:focus {
+      border-color: #36e2a4;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #36e2a4;
+      color: #06151a;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #25c98d;
+      transform: translateY(-1px);
+    }
+
+    .result {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .safe {
+      background: rgba(54,226,164,0.12);
+      border: 1px solid #36e2a4;
+    }
+
+    .warning {
+      background: rgba(255,193,7,0.12);
+      border: 1px solid #ffc107;
+    }
+
+    .danger {
+      background: rgba(255,75,75,0.12);
+      border: 1px solid #ff4b4b;
+    }
+
+    .score {
+      font-size: 45px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .result-message {
+      color: #c8d5e2;
+      line-height: 1.6;
+    }
+
+    .checks {
+      list-style: none;
+      margin-top: 15px;
+    }
+
+    .checks li {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .checks li:last-child {
+      border-bottom: none;
+    }
+
+    .data-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 14px 0;
+      color: #d7e1eb;
+    }
+
+    .data-item input {
+      width: 18px;
+      height: 18px;
+      accent-color: #36e2a4;
+    }
+
+    .privacy-note {
+      margin-top: 15px;
+      padding: 15px;
+      background: rgba(54,226,164,0.08);
+      border-left: 4px solid #36e2a4;
+      color: #c8d5e2;
+      line-height: 1.5;
+      border-radius: 5px;
+    }
+
+    .footer {
+      text-align: center;
+      color: #8194a8;
+      margin-top: 30px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 32px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <header>
+      <h1>🛡️ SafeCheck</h1>
+      <p>Check whether a phone number looks suspicious and review your data-safety habits.</p>
+    </header>
+
+    <!-- PHONE CHECKER -->
+    <div class="card">
+
+      <h2>📱 Phone Number Safety Check</h2>
+
+      <label for="phone">
+        Enter a phone number
+      </label>
+
+      <input
+        type="tel"
+        id="phone"
+        placeholder="+91 9876543210"
+        autocomplete="off"
+      >
+
+      <button onclick="checkPhone()">
+        Check Number
+      </button>
+
+      <div id="phoneResult" class="result">
+
+        <h3 id="resultTitle"></h3>
+
+        <div id="score" class="score"></div>
+
+        <p id="resultMessage" class="result-message"></p>
+
+        <ul id="checks" class="checks"></ul>
+
+      </div>
+
+      <div class="privacy-note">
+        🔒 <strong>Privacy:</strong> This demo performs checks inside your browser.
+        It does not send the phone number to a server.
+      </div>
+
+    </div>
+
+
+    <!-- DATA SAFETY -->
+    <div class="card">
+
+      <h2>🔐 Data Safety Check</h2>
+
+      <p style="color:#b7c5d6; margin-bottom:15px;">
+        Select the statements that describe your current security habits.
+      </p>
+
+      <div class="data-item">
+        <input type="checkbox" id="password">
+        <label for="password">
+          I use strong, unique passwords for important accounts.
+        </label>
+      </div>
+
+      <div class="data-item">
+        <input type="checkbox" id="twofa">
+        <label for="twofa">
+          I use two-factor authentication (2FA).
+        </label>
+      </div>
+
+      <div class="data-item">
+        <input type="checkbox" id="updates">
+        <label for="updates">
+          I keep my phone and apps updated.
+        </label>
+      </div>
+
+      <div class="data-item">
+        <input type="checkbox" id="links">
+        <label for="links">
+          I avoid suspicious links and unexpected attachments.
+        </label>
+      </div>
+
+      <div class="data-item">
+        <input type="checkbox" id="public">
+        <label for="public">
+          I avoid posting sensitive personal information publicly.
+        </label>
+      </div>
+
+      <button onclick="checkDataSafety()">
+        Check My Data Safety
+      </button>
+
+      <div id="dataResult" class="result"></div>
+
+    </div>
+
+
+    <div class="footer">
+      SafeCheck is a security-awareness demo. A browser-only check cannot
+      determine whether a phone number is actually involved in fraud.
+    </div>
+
+  </div>
+
+
+<script>
+
+function checkPhone() {
+
+  const phoneInput = document.getElementById("phone");
+  const phone = phoneInput.value.trim();
+
+  const result = document.getElementById("phoneResult");
+  const title = document.getElementById("resultTitle");
+  const scoreElement = document.getElementById("score");
+  const message = document.getElementById("resultMessage");
+  const checks = document.getElementById("checks");
+
+  result.style.display = "block";
+
+  checks.innerHTML = "";
+
+  if (!phone) {
+
+    result.className = "result danger";
+    title.textContent = "⚠️ Number Required";
+    scoreElement.textContent = "0/100";
+    message.textContent = "Please enter a phone number.";
+
+    return;
+  }
+
+
+  /*
+    Remove spaces, brackets and hyphens.
+  */
+  const cleaned = phone.replace(/[^\d+]/g, "");
+
+  let score = 100;
+  let warnings = [];
+
+
+  /*
+    Basic international phone validation.
+  */
+
+  if (cleaned.length < 7 || cleaned.length > 15) {
+
+    score -= 50;
+
+    warnings.push(
+      "❌ The number length does not look valid."
+    );
+
+  } else {
+
+    warnings.push(
+      "✅ The number has a plausible international length."
+    );
+
+  }
+
+
+  /*
+    Check whether the number begins with +.
+  */
+
+  if (!cleaned.startsWith("+")) {
+
+    score -= 10;
+
+    warnings.push(
+      "⚠️ Consider entering the number with its country code, e.g. +91."
+    );
+
+  } else {
+
+    warnings.push(
+      "✅ International country-code format detected."
+    );
+
+  }
+
+
+  /*
+    Detect obviously repetitive numbers.
+  */
+
+  const digits = cleaned.replace("+", "");
+
+  if (/^(\d)\1+$/.test(digits)) {
+
+    score -= 50;
+
+    warnings.push(
+      "❌ The number contains an obviously repetitive pattern."
+    );
+
+  }
+
+
+  /*
+    Detect simple sequential patterns.
+  */
+
+  if (
+    digits.includes("1234567") ||
+    digits.includes("7654321") ||
+    digits.includes("0123456")
+  ) {
+
+    score -= 25;
+
+    warnings.push(
+      "⚠️ The number contains a simple sequential pattern."
+    );
+
+  }
+
+
+  /*
+    Very short numbers.
+  */
+
+  if (digits.length < 10) {
+
+    warnings.push(
+      "⚠️ This may be a short/service number rather than a normal mobile number."
+    );
+
+  }
+
+
+  /*
+    Keep score between 0 and 100.
+  */
+
+  score = Math.max(0, Math.min(100, score));
+
+
+  /*
+    Display result.
+  */
+
+  if (score >= 80) {
+
+    result.className = "result safe";
+
+    title.textContent = "🟢 Looks Normal";
+
+    message.textContent =
+      "No obvious problems were detected by this basic browser-only check. " +
+      "This does NOT prove that the number is trustworthy.";
+
+  } else if (score >= 50) {
+
+    result.className = "result warning";
+
+    title.textContent = "🟡 Use Caution";
+
+    message.textContent =
+      "Some characteristics of this number deserve additional verification.";
+
+  } else {
+
+    result.className = "result danger";
+
+    title.textContent = "🔴 Suspicious Pattern";
+
+    message.textContent =
+      "This number contains patterns that look unusual. Do not assume it is fraudulent, " +
+      "but verify the caller through another trusted channel.";
+
+  }
+
+
+  scoreElement.textContent = score + "/100";
+
+
+  warnings.forEach(function(item) {
+
+    const li = document.createElement("li");
+
+    li.textContent = item;
+
+    checks.appendChild(li);
+
+  });
+
+}
+
+
+
+function checkDataSafety() {
+
+  const items = [
+
+    document.getElementById("password").checked,
+
+    document.getElementById("twofa").checked,
+
+    document.getElementById("updates").checked,
+
+    document.getElementById("links").checked,
+
+    document.getElementById("public").checked
+
+  ];
+
+
+  const completed = items.filter(Boolean).length;
+
+  const percentage = Math.round((completed / items.length) * 100);
+
+  const result = document.getElementById("dataResult");
+
+  result.style.display = "block";
+
+
+  if (percentage >= 80) {
+
+    result.className = "result safe";
+
+    result.innerHTML = `
+      <h3>🟢 Good Security Habits</h3>
+      <div class="score">${percentage}%</div>
+      <p class="result-message">
+        You are following several important security practices.
+        Keep reviewing your account privacy and security settings regularly.
+      </p>
+    `;
+
+  } else if (percentage >= 50) {
+
+    result.className = "result warning";
+
+    result.innerHTML = `
+      <h3>🟡 Could Be Improved</h3>
+      <div class="score">${percentage}%</div>
+      <p class="result-message">
+        You have some good security practices, but there are areas
+        that could be strengthened.
+      </p>
+    `;
+
+  } else {
+
+    result.className = "result danger";
+
+    result.innerHTML = `
+      <h3>🔴 Security Needs Attention</h3>
+      <div class="score">${percentage}%</div>
+      <p class="result-message">
+        Consider enabling 2FA, using unique passwords,
+        updating your devices, and being careful with links and attachments.
+      </p>
+    `;
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
+```
