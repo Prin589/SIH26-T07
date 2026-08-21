@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TrustShield AI - Breach Detection</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(0, 255, 200, 0.08), transparent 30%),
+                radial-gradient(circle at 80% 80%, rgba(70, 100, 255, 0.08), transparent 30%),
+                #050b14;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+        }
+
+        /* Header */
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo {
+            width: 65px;
+            height: 65px;
+            margin: auto;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #00e5b0, #0066ff);
+            box-shadow: 0 0 35px rgba(0, 229, 176, 0.25);
+            font-size: 30px;
+        }
+
+        .header h1 {
+            margin-top: 18px;
+            font-size: 34px;
+            letter-spacing: -1px;
+        }
+
+        .header h1 span {
+            color: #00e5b0;
+        }
+
+        .header p {
+            margin-top: 10px;
+            color: #8d9aad;
+            font-size: 15px;
+        }
+
+        /* Main Card */
+
+        .card {
+            background: rgba(10, 19, 32, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow:
+                0 25px 80px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .card-title-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(0, 229, 176, 0.1);
+            color: #00e5b0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .card-title h2 {
+            font-size: 20px;
+        }
+
+        .card-title p {
+            font-size: 12px;
+            color: #7e8a9b;
+            margin-top: 3px;
+        }
+
+        /* Input */
+
+        .input-group {
+            margin-top: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 9px;
+            color: #c8d0dc;
+            font-size: 14px;
+        }
+
+        .email-wrapper {
+            display: flex;
+            gap: 12px;
+        }
+
+        .email-input {
+            flex: 1;
+            height: 55px;
+            padding: 0 18px;
+            border-radius: 12px;
+            border: 1px solid #253347;
+            outline: none;
+            background: #08111e;
+            color: white;
+            font-size: 15px;
+            transition: 0.25s;
+        }
+
+        .email-input::placeholder {
+            color: #526174;
+        }
+
+        .email-input:focus {
+            border-color: #00e5b0;
+            box-shadow: 0 0 0 3px rgba(0, 229, 176, 0.08);
+        }
+
+        .check-btn {
+            height: 55px;
+            padding: 0 28px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            color: #03100d;
+            font-size: 14px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00e5b0, #00b8ff);
+            transition: 0.25s;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 229, 176, 0.2);
+        }
+
+        .check-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loading */
+
+        .loading {
+            display: none;
+            margin-top: 25px;
+            text-align: center;
+            color: #8d9aad;
+        }
+
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 3px solid #1d2a3b;
+            border-top-color: #00e5b0;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Result */
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .result-header {
+            padding: 22px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .result-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .result-header h3 {
+            font-size: 18px;
+        }
+
+        .result-header p {
+            font-size: 13px;
+            margin-top: 4px;
+            color: #8c98a8;
+        }
+
+        /* Safe */
+
+        .safe {
+            border: 1px solid rgba(0, 229, 176, 0.2);
+            background: rgba(0, 229, 176, 0.04);
+        }
+
+        .safe .result-icon {
+            background: rgba(0, 229, 176, 0.12);
+            color: #00e5b0;
+        }
+
+        /* Breached */
+
+        .breached {
+            border: 1px solid rgba(255, 77, 90, 0.25);
+            background: rgba(255, 77, 90, 0.04);
+        }
+
+        .breached .result-icon {
+            background: rgba(255, 77, 90, 0.12);
+            color: #ff4d5a;
+        }
+
+        /* Error */
+
+        .error {
+            border: 1px solid rgba(255, 180, 0, 0.25);
+            background: rgba(255, 180, 0, 0.04);
+        }
+
+        .error .result-icon {
+            background: rgba(255, 180, 0, 0.12);
+            color: #ffb400;
+        }
+
+        /* Breach Details */
+
+        .breach-details {
+            padding: 0 22px 22px;
+        }
+
+        .breach-count {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+        }
+
+        .breach-count span:first-child {
+            color: #8996a8;
+            font-size: 13px;
+        }
+
+        .breach-count strong {
+            color: #ff5965;
+            font-size: 20px;
+        }
+
+        .breach-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .breach-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .breach-item strong {
+            font-size: 13px;
+        }
+
+        .breach-item span {
+            font-size: 11px;
+            color: #7f8b9d;
+        }
+
+        /* Security Score */
+
+        .security-score {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .score-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .score-top span {
+            color: #8996a8;
+            font-size: 13px;
+        }
+
+        .score {
+            font-weight: 700;
+        }
+
+        .progress {
+            height: 7px;
+            background: #1a2635;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            border-radius: 20px;
+            transition: width 1s ease;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #526174;
+            font-size: 11px;
+        }
+
+        /* Mobile */
+
+        @media (max-width: 650px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .email-wrapper {
+                flex-direction: column;
+            }
+
+            .check-btn {
+                width: 100%;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="logo">
+            🛡️
+        </div>
+
+        <h1>
+            Trust<span>Shield</span> AI
+        </h1>
+
+        <p>
+            Intelligent Email Breach Detection & Digital Trust
+        </p>
+
+    </div>
+
+
+    <!-- MAIN CARD -->
+
+    <div class="card">
+
+        <div class="card-title">
+
+            <div class="card-title-icon">
+                🔍
+            </div>
+
+            <div>
+                <h2>Email Breach Detection</h2>
+                <p>
+                    Check whether an email address has appeared in known breaches
+                </p>
+            </div>
+
+        </div>
+
+
+        <!-- INPUT -->
+
+        <div class="input-group">
+
+            <label for="email">
+                Email Address
+            </label>
+
+            <div class="email-wrapper">
+
+                <input
+                    type="email"
+                    id="email"
+                    class="email-input"
+                    placeholder="Enter email address..."
+                    autocomplete="off"
+                >
+
+                <button
+                    class="check-btn"
+                    id="checkBtn"
+                    onclick="checkEmail()"
+                >
+                    Check Email
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- LOADING -->
+
+        <div class="loading" id="loading">
+
+            <div class="spinner"></div>
+
+            <p>
+                Analyzing email security...
+            </p>
+
+        </div>
+
+
+        <!-- RESULT -->
+
+        <div class="result" id="result">
+
+            <div class="result-header">
+
+                <div class="result-icon" id="resultIcon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <h3 id="resultTitle">
+                        Email appears safe
+                    </h3>
+
+                    <p id="resultMessage">
+                        No known breaches detected.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- BREACH DETAILS -->
+
+            <div
+                class="breach-details"
+                id="breachDetails"
+                style="display:none;"
+            >
+
+                <div class="breach-count">
+
+                    <span>
+                        Known breaches detected
+                    </span>
+
+                    <strong id="breachCount">
+                        0
+                    </strong>
+
+                </div>
+
+                <div
+                    class="breach-list"
+                    id="breachList"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SECURITY SCORE -->
+
+        <div
+            class="security-score"
+            id="securityScore"
+            style="display:none;"
+        >
+
+            <div class="score-top">
+
+                <span>
+                    Email Security Score
+                </span>
+
+                <span
+                    class="score"
+                    id="scoreText"
+                >
+                    100/100
+                </span>
+
+            </div>
+
+            <div class="progress">
+
+                <div
+                    class="progress-bar"
+                    id="progressBar"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+
+        TrustShield AI • Cybersecurity & Digital Trust Platform
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /*
+        DEMO BREACH DATABASE
+
+        Replace this with your backend API
+        when you connect a real breach database.
+    */
+
+    const demoBreaches = {
+
+        "test@example.com": [
+            {
+                name: "ExampleCorp",
+                date: "2024",
+                data: "Email, Password"
+            },
+            {
+                name: "DemoMarket",
+                date: "2023",
+                data: "Email, Username"
+            }
+        ],
+
+        "admin@example.com": [
+            {
+                name: "ExampleCloud",
+                date: "2024",
+                data: "Email, Password, IP Address"
+            }
+        ]
+
+    };
+
+
+    async function checkEmail() {
+
+        const emailInput =
+            document.getElementById("email");
+
+        const email =
+            emailInput.value.trim().toLowerCase();
+
+        const button =
+            document.getElementById("checkBtn");
+
+        const loading =
+            document.getElementById("loading");
+
+        const result =
+            document.getElementById("result");
+
+        const securityScore =
+            document.getElementById("securityScore");
+
+
+        /* Validate email */
+
+        if (!email) {
+
+            showError(
+                "Please enter an email address."
+            );
+
+            return;
+        }
+
+
+        const emailRegex =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(email)) {
+
+            showError(
+                "Please enter a valid email address."
+            );
+
+            return;
+        }
+
+
+        /* Reset UI */
+
+        result.style.display = "none";
+
+        securityScore.style.display = "none";
+
+        loading.style.display = "block";
+
+        button.disabled = true;
+
+
+        /*
+            Simulate security analysis.
+
+            In production this should be replaced
+            with an API request to YOUR backend.
+        */
+
+        await new Promise(resolve =>
+            setTimeout(resolve, 1800)
+        );
+
+
+        const breaches =
+            demoBreaches[email] || [];
+
+
+        loading.style.display = "none";
+
+        button.disabled = false;
+
+
+        if (breaches.length > 0) {
+
+            showBreached(email, breaches);
+
+        } else {
+
+            showSafe(email);
+
+        }
+
+    }
+
+
+    /* SAFE RESULT */
+
+    function showSafe(email) {
+
+        const result =
+            document.getElementById("result");
+
+        const icon =
+            document.getElementById("resultIcon");
+
+        const title =
+            document.getElementById("resultTitle");
+
+        const message =
+            document.getElementById("resultMessage");
+
+        const details =
+            document.getElementById("breachDetails");
+
+        const securityScore =
+            document.getElementById("securityScore");
+
+        const scoreText =
+            document.getElementById("scoreText");
+
+        const progress =
+            document.getElementById("progressBar");
+
+
+        result.className = "result safe";
+
+        result.style.display = "block";
+
+        icon.innerHTML = "✓";
+
+        title.innerText =
+            "Email appears safe";
+
+        message.innerText =
+            email +
+            " was not found in our monitored breach database.";
+
+        details.style.display = "none";
+
+        securityScore.style.display = "block";
+
+        scoreText.innerText = "100/100";
+
+        progress.style.width = "100%";
+
+    }
+
+
+    /* BREACHED RESULT */
+
+    function showBreached(email, breaches) {
+
+        const result =
+            document.getElementById("result");
+
+        const icon =
+            document.getElementById("resultIcon");
+
+        const title =
+            document.getElementById("resultTitle");
+
+        const message =
+            document.getElementById("resultMessage");
+
+        const details =
+            document.getElementById("breachDetails");
+
+        const count =
+            document.getElementById("breachCount");
+
+        const list =
+            document.getElementById("breachList");
+
+        const securityScore =
+            document.getElementById("securityScore");
+
+        const scoreText =
+            document.getElementById("scoreText");
+
+        const progress =
+            document.getElementById("progressBar");
+
+
+        result.className =
+            "result breached";
+
+        result.style.display =
+            "block";
+
+
+        icon.innerHTML = "⚠";
+
+        title.innerText =
+            "Email address breached";
+
+        message.innerText =
+            "Security exposure detected for " + email;
+
+
+        details.style.display =
+            "block";
+
+
+        count.innerText =
+            breaches.length;
+
+
+        list.innerHTML = "";
+
+
+        breaches.forEach(breach => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "breach-item";
+
+            item.innerHTML = `
+
+                <div>
+                    <strong>
+                        ${breach.name}
+                    </strong>
+
+                    <br>
+
+                    <span>
+                        Breach date: ${breach.date}
+                    </span>
+                </div>
+
+                <span>
+                    ${breach.data}
+                </span>
+
+            `;
+
+            list.appendChild(item);
+
+        });
+
+
+        /*
+            Calculate security score.
+        */
+
+        let score =
+            Math.max(
+                20,
+                100 - breaches.length * 25
+            );
+
+
+        securityScore.style.display =
+            "block";
+
+        scoreText.innerText =
+            score + "/100";
+
+        progress.style.width =
+            score + "%";
+
+    }
+
+
+    /* ERROR */
+
+    function showError(message) {
+
+        const result =
+            document.getElementById("result");
+
+        const icon =
+            document.getElementById("resultIcon");
+
+        const title =
+            document.getElementById("resultTitle");
+
+        const resultMessage =
+            document.getElementById("resultMessage");
+
+        const details =
+            document.getElementById("breachDetails");
+
+        const securityScore =
+            document.getElementById("securityScore");
+
+
+        result.className =
+            "result error";
+
+        result.style.display =
+            "block";
+
+
+        icon.innerHTML =
+            "!";
+
+        title.innerText =
+            "Invalid Request";
+
+        resultMessage.innerText =
+            message;
+
+        details.style.display =
+            "none";
+
+        securityScore.style.display =
+            "none";
+
+    }
+
+
+    /* ENTER KEY */
+
+    document
+        .getElementById("email")
+        .addEventListener("keydown", function(event) {
+
+            if (event.key === "Enter") {
+
+                checkEmail();
+
+            }
+
+        });
+
+</script>
+
+</body>
+</html>
