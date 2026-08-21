@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Basic browser security controls -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <!--
+      For production, prefer sending CSP as an HTTP response header.
+      This example keeps it simple for a static demo.
+    -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self';
+                   style-src 'self';
+                   img-src 'self' data:;
+                   connect-src 'self';
+                   object-src 'none';
+                   base-uri 'self';
+                   form-action 'self';">
+
+    <title>ChainShield Security Monitor</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <div class="brand-icon">🛡</div>
+        <div>
+            <h1>ChainShield</h1>
+            <span>Blockchain Security Monitor</span>
+        </div>
+    </div>
+
+    <div class="connection">
+        <span class="status-dot"></span>
+        Network Monitoring Active
+    </div>
+</header>
+
+<main class="container">
+
+    <section class="hero">
+        <div>
+            <p class="eyebrow">CYBERSECURITY + BLOCKCHAIN</p>
+            <h2>Protect your digital assets.</h2>
+            <p>
+                Monitor suspicious blockchain activity, identify potential
+                phishing threats and follow recommended security controls.
+            </p>
+        </div>
+
+        <div class="security-score">
+            <span>Security Score</span>
+            <strong id="securityScore">78</strong>
+            <small>/ 100</small>
+        </div>
+    </section>
+
+
+    <!-- Security statistics -->
+
+    <section class="stats">
+
+        <article class="stat-card">
+            <span class="stat-icon">🚨</span>
+            <div>
+                <small>Active Alerts</small>
+                <strong id="alertCount">4</strong>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <span class="stat-icon">⛓</span>
+            <div>
+                <small>Transactions Checked</small>
+                <strong id="transactions">12,842</strong>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <span class="stat-icon">🔐</span>
+            <div>
+                <small>MFA Status</small>
+                <strong class="safe">Enabled</strong>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <span class="stat-icon">🟢</span>
+            <div>
+                <small>Network Status</small>
+                <strong class="safe">Healthy</strong>
+            </div>
+        </article>
+
+    </section>
+
+
+    <section class="dashboard-grid">
+
+        <!-- Alerts -->
+
+        <article class="panel alerts-panel">
+
+            <div class="panel-header">
+                <div>
+                    <h3>Security Alerts</h3>
+                    <p>Potential blockchain and cybersecurity threats</p>
+                </div>
+
+                <button id="refreshAlerts" class="secondary-btn">
+                    Refresh
+                </button>
+            </div>
+
+            <div id="alertsList" class="alerts-list">
+                <!-- JavaScript inserts alerts here -->
+            </div>
+
+        </article>
+
+
+        <!-- Wallet analysis -->
+
+        <article class="panel">
+
+            <div class="panel-header">
+                <div>
+                    <h3>Wallet Risk Monitor</h3>
+                    <p>Example wallet analysis</p>
+                </div>
+            </div>
+
+            <div class="wallet">
+
+                <div class="wallet-address">
+                    <span>Connected wallet</span>
+                    <strong>0x71A4...9F2C</strong>
+                </div>
+
+                <div class="risk-meter">
+                    <div class="risk-label">
+                        <span>Risk level</span>
+                        <strong id="riskText">Low</strong>
+                    </div>
+
+                    <div class="progress">
+                        <div id="riskBar" class="progress-fill low"></div>
+                    </div>
+                </div>
+
+                <div class="wallet-checks">
+
+                    <div class="check good">
+                        <span>✓</span>
+                        No exposed seed phrase
+                    </div>
+
+                    <div class="check good">
+                        <span>✓</span>
+                        MFA enabled
+                    </div>
+
+                    <div class="check warning">
+                        <span>!</span>
+                        1 suspicious contract interaction
+                    </div>
+
+                    <div class="check good">
+                        <span>✓</span>
+                        No known malicious approvals
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- Transaction monitor -->
+
+    <section class="panel">
+
+        <div class="panel-header">
+            <div>
+                <h3>Blockchain Transaction Monitor</h3>
+                <p>Illustrative transactions for the dashboard</p>
+            </div>
+
+            <select id="networkFilter">
+                <option value="all">All Networks</option>
+                <option value="Ethereum">Ethereum</option>
+                <option value="Polygon">Polygon</option>
+                <option value="Bitcoin">Bitcoin</option>
+            </select>
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Transaction</th>
+                        <th>Network</th>
+                        <th>Amount</th>
+                        <th>Risk</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="transactionTable">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- Safety recommendations -->
+
+    <section class="panel safety-panel">
+
+        <div class="panel-header">
+            <div>
+                <h3>How to Stay Safe</h3>
+                <p>Recommended defensive security practices</p>
+            </div>
+        </div>
+
+        <div class="safety-grid">
+
+            <div class="safety-card">
+                <span>🔑</span>
+                <h4>Use MFA</h4>
+                <p>
+                    Enable multi-factor authentication on email, exchanges,
+                    cloud accounts and other important services.
+                </p>
+            </div>
+
+            <div class="safety-card">
+                <span>🎣</span>
+                <h4>Watch for phishing</h4>
+                <p>
+                    Never enter a wallet seed phrase or password after following
+                    an unexpected link or message.
+                </p>
+            </div>
+
+            <div class="safety-card">
+                <span>👛</span>
+                <h4>Protect your wallet</h4>
+                <p>
+                    Never put private keys or seed phrases into a website,
+                    JavaScript variable, database or analytics system.
+                </p>
+            </div>
+
+            <div class="safety-card">
+                <span>🔄</span>
+                <h4>Keep software updated</h4>
+                <p>
+                    Regularly update browsers, wallets, operating systems and
+                    security dependencies.
+                </p>
+            </div>
+
+            <div class="safety-card">
+                <span>🧾</span>
+                <h4>Verify transactions</h4>
+                <p>
+                    Carefully verify recipient addresses, contract interactions
+                    and transaction amounts before signing.
+                </p>
+            </div>
+
+            <div class="safety-card">
+                <span>🚫</span>
+                <h4>Don't trust urgency</h4>
+                <p>
+                    Attackers often create fake emergency messages asking you
+                    to immediately move funds or reveal credentials.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Security checklist -->
+
+    <section class="panel">
+
+        <div class="panel-header">
+            <div>
+                <h3>Security Checklist</h3>
+                <p>Improve your account protection</p>
+            </div>
+
+            <span id="checklistScore" class="badge">0 / 6</span>
+        </div>
+
+        <div id="checklist" class="checklist">
+
+            <label>
+                <input type="checkbox" data-score="15">
+                <span>Enable MFA on important accounts</span>
+            </label>
+
+            <label>
+                <input type="checkbox" data-score="15">
+                <span>Use unique passwords</span>
+            </label>
+
+            <label>
+                <input type="checkbox" data-score="15">
+                <span>Use a reputable password manager</span>
+            </label>
+
+            <label>
+                <input type="checkbox" data-score="20">
+                <span>Keep wallet software updated</span>
+            </label>
+
+            <label>
+                <input type="checkbox" data-score="20">
+                <span>Verify blockchain transactions before signing</span>
+            </label>
+
+            <label>
+                <input type="checkbox" data-score="15">
+                <span>Never share a seed phrase or private key</span>
+            </label>
+
+        </div>
+
+    </section>
+
+
+    <!-- Phishing checker -->
+
+    <section class="panel phishing-panel">
+
+        <div class="panel-header">
+            <div>
+                <h3>Suspicious URL Checker</h3>
+                <p>
+                    Basic client-side warning tool — not a replacement for
+                    professional threat intelligence.
+                </p>
+            </div>
+        </div>
+
+        <form id="urlForm">
+
+            <label for="urlInput">Website URL</label>
+
+            <div class="url-input">
+                <input
+                    id="urlInput"
+                    type="url"
+                    placeholder="https://example.com"
+                    autocomplete="off"
+                    required
+                >
+
+                <button type="submit">
+                    Check
+                </button>
+            </div>
+
+        </form>
+
+        <div id="urlResult" class="url-result hidden"></div>
+
+    </section>
+
+</main>
+
+<footer>
+    ChainShield Demo • Defensive cybersecurity monitoring interface
+</footer>
+
+<script src="app.js"></script>
+
+</body>
+</html>
