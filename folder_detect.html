@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>FileGuard - Virus & Spam Scanner</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #07111f, #102d48);
+      color: white;
+      padding: 30px 15px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      color: #35e0a2;
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #aebed0;
+    }
+
+    .card {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 18px;
+      padding: 25px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(12px);
+    }
+
+    h2 {
+      color: #35e0a2;
+      margin-bottom: 15px;
+    }
+
+    .drop-area {
+      border: 2px dashed #49667f;
+      border-radius: 15px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .drop-area:hover {
+      border-color: #35e0a2;
+      background: rgba(53,224,162,.05);
+    }
+
+    .drop-area input {
+      display: none;
+    }
+
+    .icon {
+      font-size: 45px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 20px;
+      border: 0;
+      border-radius: 10px;
+      background: #35e0a2;
+      color: #06151a;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #22c88b;
+    }
+
+    button:disabled {
+      background: #49667f;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
+    #fileList {
+      margin-top: 20px;
+    }
+
+    .file {
+      padding: 12px;
+      margin: 8px 0;
+      background: rgba(255,255,255,.05);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .result {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .safe {
+      border: 1px solid #35e0a2;
+      background: rgba(53,224,162,.1);
+    }
+
+    .warning {
+      border: 1px solid #ffc107;
+      background: rgba(255,193,7,.1);
+    }
+
+    .danger {
+      border: 1px solid #ff4d4d;
+      background: rgba(255,77,77,.1);
+    }
+
+    .scan-item {
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .scan-item:last-child {
+      border-bottom: none;
+    }
+
+    .hash {
+      color: #8ca2b8;
+      font-size: 12px;
+      word-break: break-all;
+      margin-top: 5px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 10px;
+      background: #172c40;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: #35e0a2;
+      transition: width .3s;
+    }
+
+    .notice {
+      margin-top: 15px;
+      padding: 15px;
+      border-left: 4px solid #35e0a2;
+      background: rgba(53,224,162,.07);
+      color: #b9c9d9;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      color: #71859a;
+      font-size: 13px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>🛡️ FileGuard</h1>
+    <p>Virus, suspicious-file and spam-content scanner</p>
+  </header>
+
+
+  <div class="card">
+
+    <h2>📁 Select Files or Folder</h2>
+
+    <label class="drop-area">
+
+      <div class="icon">📂</div>
+
+      <strong>
+        Click to select files
+      </strong>
+
+      <p style="color:#8296aa;margin-top:8px;">
+        You can select multiple files
+      </p>
+
+      <input
+        type="file"
+        id="fileInput"
+        multiple
+      >
+
+    </label>
+
+
+    <div id="fileList"></div>
+
+
+    <button id="scanButton" disabled>
+      🔍 Scan Files
+    </button>
+
+
+    <div class="progress">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+
+    <div id="result" class="result"></div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2>🔎 What is checked?</h2>
+
+    <div class="notice">
+
+      <strong>File analysis</strong><br>
+      Suspicious extensions, filenames, file hashes and other basic indicators.
+
+      <br><br>
+
+      <strong>Spam/phishing analysis</strong><br>
+      Text-based files can be checked for suspicious words and phishing-style
+      content.
+
+      <br><br>
+
+      <strong>Malware detection</strong><br>
+      For genuine antivirus detection, connect the backend to a trusted
+      malware-scanning engine/API.
+
+    </div>
+
+  </div>
+
+
+  <footer>
+    FileGuard is a security-awareness tool. Do not rely on heuristic checks
+    as proof that a file is malware-free.
+  </footer>
+
+</div>
+
+
+<script>
+
+const fileInput = document.getElementById("fileInput");
+const fileList = document.getElementById("fileList");
+const scanButton = document.getElementById("scanButton");
+const result = document.getElementById("result");
+const progressBar = document.getElementById("progressBar");
+
+let selectedFiles = [];
+
+
+fileInput.addEventListener("change", function() {
+
+  selectedFiles = Array.from(fileInput.files);
+
+  fileList.innerHTML = "";
+
+  selectedFiles.forEach(file => {
+
+    const div = document.createElement("div");
+
+    div.className = "file";
+
+    div.innerHTML = `
+      <span>📄 ${escapeHTML(file.name)}</span>
+      <span>${formatBytes(file.size)}</span>
+    `;
+
+    fileList.appendChild(div);
+
+  });
+
+  scanButton.disabled = selectedFiles.length === 0;
+
+});
+
+
+scanButton.addEventListener("click", scanFiles);
+
+
+async function scanFiles() {
+
+  if (selectedFiles.length === 0) {
+    return;
+  }
+
+  scanButton.disabled = true;
+
+  result.style.display = "block";
+  result.className = "result warning";
+
+  result.innerHTML = `
+    <h3>🔄 Scanning...</h3>
+    <p style="margin-top:10px;">
+      Analyzing selected files.
+    </p>
+  `;
+
+  let results = [];
+
+  for (let i = 0; i < selectedFiles.length; i++) {
+
+    const file = selectedFiles[i];
+
+    progressBar.style.width =
+      ((i / selectedFiles.length) * 100) + "%";
+
+    const analysis = await analyzeFile(file);
+
+    results.push(analysis);
+
+  }
+
+  progressBar.style.width = "100%";
+
+  displayResults(results);
+
+  scanButton.disabled = false;
+
+}
+
+
+async function analyzeFile(file) {
+
+  let risks = [];
+
+  const name = file.name.toLowerCase();
+
+  /*
+    Suspicious extensions.
+  */
+
+  const dangerousExtensions = [
+
+    ".exe",
+    ".scr",
+    ".bat",
+    ".cmd",
+    ".com",
+    ".msi",
+    ".vbs",
+    ".vbe",
+    ".js",
+    ".jse",
+    ".ps1",
+    ".hta",
+    ".dll",
+    ".jar"
+
+  ];
+
+
+  const extensionRisk =
+    dangerousExtensions.some(ext => name.endsWith(ext));
+
+
+  if (extensionRisk) {
+
+    risks.push(
+      "Executable or script file"
+    );
+
+  }
+
+
+  /*
+    Double extension detection.
+    Example:
+    invoice.pdf.exe
+  */
+
+  const doubleExtension =
+    /\.[a-z0-9]{2,5}\.(exe|scr|bat|cmd|js|vbs|msi)$/i
+      .test(name);
+
+
+  if (doubleExtension) {
+
+    risks.push(
+      "Possible double-extension disguise"
+    );
+
+  }
+
+
+  /*
+    Suspicious filename keywords.
+  */
+
+  const suspiciousWords = [
+
+    "crack",
+    "keygen",
+    "patch",
+    "hack",
+    "password",
+    "free-money",
+    "invoice",
+    "urgent",
+    "payment",
+    "verify-account"
+
+  ];
+
+
+  suspiciousWords.forEach(word => {
+
+    if (name.includes(word)) {
+
+      risks.push(
+        "Suspicious filename keyword: " + word
+      );
+
+    }
+
+  });
+
+
+  /*
+    Calculate SHA-256.
+  */
+
+  const hash = await calculateHash(file);
+
+
+  /*
+    Text/spam inspection.
+  */
+
+  let spamWarnings = [];
+
+  if (isTextFile(file)) {
+
+    try {
+
+      const text = await file.text();
+
+      spamWarnings = detectSpam(text);
+
+      risks.push(...spamWarnings);
+
+    } catch (error) {
+
+      console.log("Text analysis failed.");
+
+    }
+
+  }
+
+
+  return {
+
+    name: file.name,
+
+    size: file.size,
+
+    hash: hash,
+
+    risks: risks,
+
+    spamWarnings: spamWarnings
+
+  };
+
+}
+
+
+async function calculateHash(file) {
+
+  const buffer = await file.arrayBuffer();
+
+  const hashBuffer =
+    await crypto.subtle.digest(
+      "SHA-256",
+      buffer
+    );
+
+  const hashArray =
+    Array.from(new Uint8Array(hashBuffer));
+
+  return hashArray
+    .map(byte => byte.toString(16).padStart(2, "0"))
+    .join("");
+
+}
+
+
+function isTextFile(file) {
+
+  const textTypes = [
+
+    "text/plain",
+    "text/html",
+    "text/css",
+    "text/javascript",
+    "application/json"
+
+  ];
+
+  return textTypes.includes(file.type) ||
+         /\.(txt|html|htm|csv|json|xml)$/i.test(file.name);
+
+}
+
+
+function detectSpam(text) {
+
+  const warnings = [];
+
+  const lower = text.toLowerCase();
+
+
+  const spamPatterns = [
+
+    {
+      pattern: /click here/i,
+      message: "Contains 'click here' language"
+    },
+
+    {
+      pattern: /urgent.{0,50}(payment|account|verify)/i,
+      message: "Urgent account/payment language"
+    },
+
+    {
+      pattern: /send.{0,30}(password|otp|pin)/i,
+      message: "Requests sensitive authentication information"
+    },
+
+    {
+      pattern: /your account.{0,50}(suspend|blocked|closed)/i,
+      message: "Account-threat language"
+    },
+
+    {
+      pattern: /congratulations.{0,100}(winner|prize|money)/i,
+      message: "Possible prize scam language"
+    }
+
+  ];
+
+
+  spamPatterns.forEach(item => {
+
+    if (item.pattern.test(lower)) {
+
+      warnings.push(
+        "⚠️ " + item.message
+      );
+
+    }
+
+  });
+
+
+  return warnings;
+
+}
+
+
+function displayResults(results) {
+
+  let totalRisks = 0;
+
+  results.forEach(item => {
+
+    totalRisks += item.risks.length;
+
+  });
+
+
+  let overallClass = "safe";
+  let overallTitle = "🟢 No Obvious Problems";
+
+  if (totalRisks > 0) {
+
+    overallClass = "warning";
+    overallTitle = "🟡 Suspicious Indicators Found";
+
+  }
+
+
+  if (totalRisks >= 3) {
+
+    overallClass = "danger";
+    overallTitle = "🔴 High-Risk Indicators Found";
+
+  }
+
+
+  result.className =
+    "result " + overallClass;
+
+
+  let html = `
+    <h3>${overallTitle}</h3>
+
+    <p style="margin:10px 0;">
+      Scanned ${results.length} file(s).
+    </p>
+  `;
+
+
+  results.forEach(item => {
+
+    html += `
+
+      <div class="scan-item">
+
+        <strong>
+          ${escapeHTML(item.name)}
+        </strong>
+
+        <br>
+
+        <span style="color:#8fa3b7;">
+          ${formatBytes(item.size)}
+        </span>
+
+        <div class="hash">
+          SHA-256: ${item.hash}
+        </div>
+
+    `;
+
+
+    if (item.risks.length === 0) {
+
+      html += `
+        <p style="color:#35e0a2;margin-top:10px;">
+          ✅ No obvious suspicious indicators detected.
+        </p>
+      `;
+
+    } else {
+
+      html += `
+        <ul style="margin-top:10px;padding-left:20px;">
+      `;
+
+      item.risks.forEach(risk => {
+
+        html += `
+          <li style="margin:5px 0;color:#ffc107;">
+            ${escapeHTML(risk)}
+          </li>
+        `;
+
+      });
+
+      html += `</ul>`;
+
+    }
+
+
+    html += `</div>`;
+
+  });
+
+
+  html += `
+
+    <div class="notice">
+
+      ⚠️ These results are heuristic checks only.
+      A file without warnings is <strong>not guaranteed to be malware-free</strong>.
+
+    </div>
+
+  `;
+
+
+  result.innerHTML = html;
+
+}
+
+
+function formatBytes(bytes) {
+
+  if (bytes === 0) {
+    return "0 Bytes";
+  }
+
+  const sizes = [
+    "Bytes",
+    "KB",
+    "MB",
+    "GB"
+  ];
+
+  const i =
+    Math.floor(
+      Math.log(bytes) / Math.log(1024)
+    );
+
+  return (
+    parseFloat(
+      (bytes / Math.pow(1024, i))
+        .toFixed(2)
+    ) +
+    " " +
+    sizes[i]
+  );
+
+}
+
+
+function escapeHTML(value) {
+
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+</script>
+
+</body>
+</html>
